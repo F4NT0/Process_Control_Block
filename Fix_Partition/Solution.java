@@ -31,6 +31,28 @@ class Memory {
     }
 }
 
+class ContextData{
+    int r1,r2,r3,r4,r5,r6,r7,r8;
+    int idProcess;
+    public ContextData(int idProcess){
+        this.idProcess = idProcess;
+    }
+    public int getRegister(String register){
+        switch (register) {
+            case "r1": return r1;case "r2": return r2;
+            case "r3": return r3;case "r4": return r4;
+            case "r5": return r5;case "r6": return r6;
+            case "r7": return r7;case "r8": return r8;
+        }
+        return -1;
+    }
+    public void save(int r1,int r2,int r3, int r4, int r5, int r6, int r7, int r8){
+        this.r1 = r1;this.r2 = r2;this.r3 = r3;this.r4 = r4;
+        this.r5 = r5;this.r6 = r6;this.r7 = r7;this.r8 = r8;
+    }
+}
+
+
 class Process{
     private int id; // Identificador Unico do Processo
     private String state; // Estado do Processo
@@ -42,6 +64,8 @@ class Process{
     public Process(int id, String state){
         this.id = id;this.state = state;
     }
+    // Salvar o Contexto
+    ContextData context = new ContextData(id);
 
     public int getId(){return id;}
     public int getPc(){return pc;}
@@ -54,11 +78,22 @@ class Process{
     public void setPc(int pc){this.pc = pc;}
     public void setState(String state){this.state = state;}
     public void setPriority(int priority){this.priority = priority;}
+
+    // Salvando o Contexto Atual
+    public void saveContextData(int r1,int r2, int r3, int r4, int r5, int r6, int r7, int r8){
+        context.save(r1, r2, r3, r4, r5, r6, r7, r8);
+    }
+    public int getRegister(String register){
+        return context.getRegister(register);
+    }
+
 }
 
 class PCB{
     Queue<Process> queue;
     Memory mem;
+    int r1,r2,r3,r4,r5,r6,r7,r8;
+
     public PCB(Memory mem){
         queue = new LinkedList<>();
         this.mem = mem;
@@ -84,6 +119,7 @@ class PCB{
         }
     }
 
+    // Leitura de uma Linha de cada Processo
     private int adder(int relative, int baseReg){
         return relative + baseReg;
     }
@@ -98,7 +134,8 @@ class PCB{
         Process process = queue.poll();
         int value = adder(valor, process.baseRegister);
         if(comparator(value, process.boundsRegister)){
-            System.out.println("Posição " + value + " | Processo " + process.getId() + " : " + mem.getMemory().get(value));
+            System.out.println("Posição " + value + " | Processo " + process.getId() + " : " + mem.getMemory().get(value) + "\n");
+            process.saveContextData(value,-1, -1, -1, -1, -1, -1, -1);
         }else{
             System.out.println("Posição " + value + " Não existe no Processo " + process.getId());
         }
@@ -117,6 +154,11 @@ class PCB{
         System.out.println("Bounds Register: " + aux.getBoundsRegister());
         System.out.println("Prioridade: " + aux.getPriority());
     }
+    public void testeContextData(){
+        Process aux = queue.poll();
+        System.out.println("Processo: " + aux.getId());
+        System.out.println("ContextData: " + aux.getRegister("r1") + "\n");
+    }
 
 }
 
@@ -130,29 +172,35 @@ public class Solution{
         p.createProcess(3);
         p.createProcess(4);
 
-        //teste da memória adicionando a fila
-        mem.teste();
-        //p.queueSize();
-        //p.testeFila();
+        // Teste verificando a memória
         //mem.teste();
 
-        //teste dos base e bounds registers
-        //p.testeRegisters();
+        // Teste da memória adicionando a fila
+        // p.queueSize();
+        // p.testeFila();
+        // mem.teste();
+
+        // Teste dos base e bounds registers
+        // p.testeRegisters();
         // p.testeRegisters();
         // p.testeRegisters();
         // p.testeRegisters();
 
-        //posição 5 do Processo 1
-        p.lerLinha(5);
-        // posição 5 do processo 2
-        p.lerLinha(5);
-        // posição 5 do processo 3
-        p.lerLinha(5);
-        // posição 5 do processo 4
-        p.lerLinha(5);
+        // Teste de leitura dos Processos
+        // p.lerLinha(5); // posição 5 do Processo 1
+        // p.lerLinha(5); // posição 5 do processo 2
+        // p.lerLinha(5); // posição 5 do processo 3
+        // p.lerLinha(5); // posição 5 do processo 4
 
-        // Verificar agora se ele retornar para o processo 1
+        // Teste de Verificação se está salvando o contexto
+        p.lerLinha(5);
         p.lerLinha(2);
+        p.lerLinha(4);
+        p.lerLinha(6);
+        p.testeContextData();
+        p.testeContextData();
+        p.testeContextData();
+        p.testeContextData();
 
     }
 }
