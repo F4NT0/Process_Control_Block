@@ -43,22 +43,14 @@ class ContextData {
 
     public int getRegister(String register) {
         switch (register) {
-            case "r1":
-                return r1;
-            case "r2":
-                return r2;
-            case "r3":
-                return r3;
-            case "r4":
-                return r4;
-            case "r5":
-                return r5;
-            case "r6":
-                return r6;
-            case "r7":
-                return r7;
-            case "r8":
-                return r8;
+            case "r1":return r1;
+            case "r2":return r2;
+            case "r3":return r3;
+            case "r4":return r4;
+            case "r5":return r5;
+            case "r6":return r6;
+            case "r7":return r7;
+            case "r8":return r8;
         }
         return -1;
     }
@@ -82,6 +74,8 @@ class Process {
     private int pageNumbers = 4;
     private Map<Integer, Integer> pagination = new HashMap<>();
     int pc;
+    private int baseRegister;
+    private int boundsRegister;
 
     public Process(int id, String state){
         this.id = id;this.state = state;
@@ -100,6 +94,12 @@ class Process {
     public Map<Integer,Integer> getPagination(){return pagination;}
     public void setPagination(Map<Integer,Integer> pages){this.pagination = pages;}
     public int getPageNumbers(){return pageNumbers;}
+
+    // Registers
+    public int getBaseRegister(){return baseRegister;}
+    public int getBoundsRegister(){return boundsRegister;}
+    public void setBaseRegister(int br){baseRegister = br;}
+    public void setBoundsRegister(int br){boundsRegister = br;}
     
     // ContextData
     public void saveContextData(int r1,int r2, int r3, int r4, int r5, int r6, int r7, int r8){
@@ -137,7 +137,7 @@ class PCB{
         // Pegando os primeiros Frames para o Processo
         Map<Integer, Integer> auxMap = new HashMap<>();
         for(int i = 0 ; i < process.getPageNumbers() ; i++){
-            auxMap.put(i, list.get(i));// (página,frame)
+            auxMap.put(i, list.get(i)); //(página,frame)
         }
 
         // Adicionando os valores de exemplo
@@ -163,14 +163,14 @@ class PCB{
         return relative / frameSize;
     }
     
-    private int offset(int value, int frameSize){
+    private int offset(int value, int frameSize){   
        return value - frameSize;
     }
 
     public void lerLinha(int valor){
         Process process = queue.poll();
         int discoverFrame = frameLocation(valor, process.getPageNumbers());
-        int offset = offset(valor, process.getPageNumbers());
+        int offset = offset(valor, process.getPageNumbers()); // posição dentro do frame
         int accessPosition = process.getPagination().get(discoverFrame); //frame que iremos acessar
         String[] vetorAux = (String[]) mem.getMemory().get(accessPosition);
         System.out.println("Valor na Linha " + offset + " da Posição " + accessPosition + " : " + vetorAux[offset]);
@@ -208,13 +208,19 @@ class PCB{
 
 public class Solution{
     public static void main(String[] args){
+        
+        // Inicialização da Memória e do PCB
         Memory mem = new Memory();
         PCB p = new PCB(mem);
         
+        // Criação de 4 Processos
         p.createProcess(0);
         p.createProcess(1);
         p.createProcess(2);
         p.createProcess(3);
+        
+        // Teste dos Frames e seus valores Guardados
+        System.out.println("Frames e seus Respectivos Valores");
         mem.teste();
         
         //p.testeRegisters();
@@ -222,6 +228,7 @@ public class Solution{
         //p.testeRegisters();
 
         //p.testeVetores(1);
+        System.out.println("Teste das Posições dentro do Frame 2 da Memória");
         p.testeVetores(2);
         //p.testeVetores(3);
         //p.testeVetores(4);
@@ -230,9 +237,10 @@ public class Solution{
         // p.testeVetores(7);
         // p.testeVetores(8);
         
+        System.out.println("Teste de valor vindo do Programa(acessar Posição 4 do Processo)");
         p.lerLinha(4);
         System.out.println("\n");
-        System.out.println("Teste do ContextData ");
+        System.out.println("Valor salvo da Posição lida");
         p.testeContextData();
 
 

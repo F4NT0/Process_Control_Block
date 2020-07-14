@@ -164,15 +164,18 @@ class PCB{
 
 public class Solution{
     public static void main(String[] args){
+        // Inciando a Memória e o PCB
         Memory mem = new Memory();
         PCB p = new PCB(mem);
 
+        // Criação de 4 Processos
         p.createProcess(1);
         p.createProcess(2);
         p.createProcess(3);
         p.createProcess(4);
 
         // Teste verificando a memória
+        System.out.println("Memória Após iniciado quatro Processos");
         mem.teste();
 
         // Teste da memória adicionando a fila
@@ -187,20 +190,22 @@ public class Solution{
         // p.testeRegisters();
 
         // Teste de leitura dos Processos
-        // p.lerLinha(5); // posição 5 do Processo 1
-        // p.lerLinha(5); // posição 5 do processo 2
-        // p.lerLinha(5); // posição 5 do processo 3
-        // p.lerLinha(5); // posição 5 do processo 4
+        System.out.println("\n Lendo Posicoes vindas do Programa(ex: posição 5 em cada Processo)");
+        p.lerLinha(5); // posição 5 do Processo 1
+        p.lerLinha(5); // posição 5 do processo 2
+        p.lerLinha(5); // posição 5 do processo 3
+        p.lerLinha(5); // posição 5 do processo 4
 
         // Teste de Verificação se está salvando o contexto
         // p.lerLinha(5);
         // p.lerLinha(2);
         // p.lerLinha(4);
         // p.lerLinha(6);
-        // p.testeContextData();
-        // p.testeContextData();
-        // p.testeContextData();
-        // p.testeContextData();
+        System.out.println("\n Verificando se está salvando no ContextData as Posições");
+        p.testeContextData();
+        p.testeContextData();
+        p.testeContextData();
+        p.testeContextData();
 
     }
 }
