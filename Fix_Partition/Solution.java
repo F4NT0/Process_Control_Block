@@ -173,7 +173,7 @@ public class Solution{
         p.createProcess(4);
 
         // Teste verificando a memória
-        //mem.teste();
+        mem.teste();
 
         // Teste da memória adicionando a fila
         // p.queueSize();
@@ -193,14 +193,14 @@ public class Solution{
         // p.lerLinha(5); // posição 5 do processo 4
 
         // Teste de Verificação se está salvando o contexto
-        p.lerLinha(5);
-        p.lerLinha(2);
-        p.lerLinha(4);
-        p.lerLinha(6);
-        p.testeContextData();
-        p.testeContextData();
-        p.testeContextData();
-        p.testeContextData();
+        // p.lerLinha(5);
+        // p.lerLinha(2);
+        // p.lerLinha(4);
+        // p.lerLinha(6);
+        // p.testeContextData();
+        // p.testeContextData();
+        // p.testeContextData();
+        // p.testeContextData();
 
     }
 }
