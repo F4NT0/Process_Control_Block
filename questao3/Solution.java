@@ -2,75 +2,110 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 /**
-* Suponha que o algoritmo concorrente abaixo, que tem situações em que insere
-    elementos nas listas A e B, retira elementos destas listas, e também passa elementos
-    de uma lista para outra de forma atômica. Ou seja, o elemento transferido é observável
-    em A ou em B. A operação passa não permite que outro processo observe o estado
-    em que o elemento foi retirado de uma lista e ainda não inserido na outra. Como as
-    listas A e B são acessadas concorrentemente, este algoritmo usa semáforos para
-    proteger o acesso às operações de inserção e retirada de cada lista. Uma estrutura
-    agregando uma lista e um semáforo para cuidar de sua exclusão mútua é criada, como
-    abaixo.
-*/
+ * =============================
+ * SOLUÇÃO DA QUESTÃO 3 DA GII
+ * Autor: Gabriel Fanto Stundner
+ * =============================
+ */
 
-class ListaCriador{
+class ListaCriador extends Thread{
     private ArrayList<Integer> lista;
-    public ListaCriador(){
+    private int min,max;
+    
+    public ListaCriador(int min,int max){
+        this.min = min;
+        this.max = max;
         lista = new ArrayList<>();
     }
+    
     public ArrayList<Integer> getLista(){return lista;}
+
+    
+    public void run(){
+        for(int i = min ; i < max ; i++){
+            lista.add(i);
+        }
+    }
+
+    // Método de Teste
+    public void testeSaida(){
+        for(int i = 0 ; i < lista.size() ; i++){
+            if(lista.get(i) != null){
+                System.out.println("Posição " + i + " : " + lista.get(i));
+            }
+        }
+    }
 }
 
 class ListaBloqueio extends Thread{
     private Semaphore mutex;    
-
-    public ListaBloqueio(){
+    ListaCriador lista1;
+    ListaCriador lista2;
+    
+    public ListaBloqueio(ListaCriador lista1, ListaCriador lista2){
         this.mutex = new Semaphore(1);
+        this.lista1 = lista1;
+        this.lista2 = lista2;
     }
-
-    public Semaphore getMutex(){return mutex;}
-
-    // Métodos de interação
 
     /**
      * Adiciona o Item na Lista de Itens de entrada
      * @param lista
      * @param item
      */
-    public void insere(ArrayList<Integer> lista, int item){
-        lista.add(item);
+    public void insere(ListaCriador lista, int item){
+        if(lista.getLista().contains(item) == false){
+            lista.getLista().add(item);    
+        }
     }
 
     /**
-     * Retira, Remove e retorna o Conteudo de uma Posição
+     * Retira o elemento descobrindo seu index
      * @param lista
      * @param index
      * @return Integer
      */
-    public int retira(ArrayList<Integer> lista, int index){ // Adicionado o index no Método
-        int aux = lista.get(index);
-        lista.remove(index);
-        return aux;
+    public int retira(ListaCriador lista, int value){
+        int position = lista.getLista().indexOf(value);
+        lista.getLista().remove(position);
+        return value;
     }
 
     /**
-     * Passa um valor aleatório da Lista 1 para a Lista 2
+     * Passa um valor do Final da Lista 1 para a Lista 2
      * @param lista1
      * @param lista2
      * @return boolean
      */
-    public boolean passa(ArrayList<Integer> lista1, ArrayList<Integer> lista2){
-        if(lista1.size() > 0){
-            int posAleatoria = (int) ((Math.random() * ((lista1.size() - 0) + 1)) + 0);
-            lista2.add(lista1.get(posAleatoria));
+    public boolean passa(ListaCriador lista1, ListaCriador lista2){
+        int position = lista2.getLista().size()-1;
+        if(position >= 0){
+            insere(lista1, lista2.getLista().get(position));
+            retira(lista2, lista2.getLista().get(position));
             return true;
         }
         return false;
     }
 
-    public void run(){ // FALTA FINALIZAR ESSA FUNÇÃO
+    /**
+     * Método para Rodar em Loop os Métodos
+     * @param lista1
+     * @param lista2
+     */
+    public void procLista(ListaCriador lista1, ListaCriador lista2){
+      int aux = 10;
+      while(aux > 0){
+        passa(lista1, lista2);    
+        aux--;
+      }
+        
+    }  
+
+    
+    public void run(){
         try{
             mutex.acquire();
+            procLista(lista1, lista2);
         }catch (InterruptedException e){
             e.printStackTrace();
         }finally{
@@ -78,8 +113,51 @@ class ListaBloqueio extends Thread{
         }
     }
 
-    // TODO: TEM QUE CRIAR UM MÉTODO QUE ADICIONE VALORES NAS LISTAS
-    // TODO: TEM QUE POSSUI A FUNÇÃO PROCLISTA(OLHAR NO MATERIAL DA GII)
-    // TODO: TEM QUE FAZER FUNCIONAR
+    // Método de Teste
+    public void teste(){
+        for(int i = 0 ; i < lista1.getLista().size() ; i++){
+            System.out.println("Lista 1: " + " Posicao " + i + " : " + lista1.getLista().get(i));
+        }
+        System.out.println("\n");
+        for(int i = 0 ; i < lista2.getLista().size() ; i++){
+            System.out.println("Lista 2: " + " Posicao " + i + " : " + lista2.getLista().get(i));
+        }
+        System.out.println("\n");
+    }
 
+}
+public class Solution{
+    public static void main(String[] args){
+        // Listas Criadas 
+        ListaCriador lista1 = new ListaCriador(0,3);
+        ListaCriador lista2 = new ListaCriador(4,7);
+        
+        // Adicionando valores como Processo
+        lista1.start();
+        lista2.start();
+        System.out.println("\nLista 1\n");
+        lista1.testeSaida();
+        System.out.println("\nLista 2\n");
+        lista2.testeSaida();
+
+        // Programa
+        ListaBloqueio fase1 = new ListaBloqueio(lista1, lista2);
+        ListaBloqueio fase2 = new ListaBloqueio(lista2, lista1);
+        fase1.start();
+        fase2.start();
+        
+        System.out.println("\nApós os Processos: \n");
+        
+        System.out.println("\nProcesso 1\n");
+        fase1.teste();
+        System.out.println("\nProcesso 2\n");
+        fase2.teste();
+
+        System.out.println("\n As Listas \n");
+        System.out.println("\nLista 1\n");
+        lista1.testeSaida();
+        System.out.println("\nLista 2\n");
+        lista2.testeSaida();
+        
+    }
 }
