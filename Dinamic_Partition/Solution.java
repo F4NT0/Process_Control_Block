@@ -5,6 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+/**
+ * =================================================
+ * SOLUÇÃO DA QUESTÃO 1 DA GII - PARTIÇÕES DINÂMICAS
+ * Autor: Gabriel Fanto Stundner
+ * =================================================
+ */
+
 class Memory {
     private int size = 16;
     private List<Object> memory;

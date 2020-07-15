@@ -3,6 +3,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * =================================================
+ * SOLUÇÃO DA QUESTÃO 1 DA GII - PARTIÇÕES FIXAS
+ * Autor: Gabriel Fanto Stundner
+ * =================================================
+ */
+
 class Memory {
     private int size = 32;
     private List<Object> memory;
